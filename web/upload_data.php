@@ -1,18 +1,19 @@
 <?php
 require_once ('creds.php');
 require_once ('auth_app.php');
-
-// Connect to Database
-$con = mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error());
-mysql_select_db($db_name, $con) or die(mysql_error());
+require_once ('parse_functions.php');
 
 // Create an array of all the existing fields in the database
-$result = mysql_query("SHOW COLUMNS FROM $db_table", $con) or die(mysql_error());
-if (mysql_num_rows($result) > 0) {
-    while ($row = mysql_fetch_assoc($result)) {
+$result = $db->query("SHOW COLUMNS FROM $db_table") or die($db->error);
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
         $dbfields[]=($row['Field']);
     }
 }
+
+// Get the torque key->val mappings
+$js = CSVtoJSON("./data/torque_keys.csv");
+$jsarr = json_decode($js, TRUE);
 
 // Iterate over all the k* _GET arguments to check that a field exists
 if (sizeof($_GET) > 0) {
@@ -46,18 +47,21 @@ if (sizeof($_GET) > 0) {
         //}
         // If the field doesn't already exist, add it to the database
         if (!in_array($key, $dbfields) and $submitval == 1) {
-            $sqlalter = "ALTER TABLE $db_table ADD $key VARCHAR(255) NOT NULL default '0'";
-            mysql_query($sqlalter, $con) or die(mysql_error());
+            $comment = '';
+            if (in_array($key, $jsarr)) {
+                $comment = $jsarr[$key];
+            }
+            $comment = $db->real_escape_string($comment);
+            $sqlalter = "ALTER TABLE $db_table ADD $key FLOAT NOT NULL DEFAULT '0' COMMENT '$comment'";
+            $db->query($sqlalter) or die($db->error);
         }
     }
     if ((sizeof($keys) === sizeof($values)) && sizeof($keys) > 0) {
         // Now insert the data for all the fields
         $sql = "INSERT INTO $db_table (".implode(",", $keys).") VALUES (".implode(",", $values).")";
-        mysql_query($sql, $con) or die(mysql_error());
+        $db->query($sql) or die($db->error);
     }
 }
-
-mysql_close($con);
 
 // Return the response required by Torque
 echo "OK!";

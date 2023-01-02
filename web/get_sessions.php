@@ -1,24 +1,20 @@
 <?php
 require_once("./creds.php");
 
-session_set_cookie_params(0,dirname($_SERVER['SCRIPT_NAME']));
-session_start();
 $timezone = $_SESSION['time'];
 
-// Connect to Database
-$con = mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error());
-mysql_select_db($db_name, $con) or die(mysql_error());
-
 // Get list of unique session IDs
-$sessionqry = mysql_query("SELECT COUNT(*) as `Session Size`, MIN(time) as `MinTime`, MAX(time) as `MaxTime`, session
+$sessionqry = $db->query("SELECT COUNT(*) as `Session Size`, MIN(time) as `MinTime`, MAX(time) as `MaxTime`, session
                       FROM $db_table
                       GROUP BY session
-                      ORDER BY time DESC", $con) or die(mysql_error());
+                      ORDER BY MinTime DESC") or die($db->error);
 
 // Create an array mapping session IDs to date strings
 $seshdates = array();
 $seshsizes = array();
-while($row = mysql_fetch_assoc($sessionqry)) {
+$sids = array();
+
+while($row = $sessionqry->fetch_assoc()) {
     $session_size = $row["Session Size"];
     $session_duration = $row["MaxTime"] - $row["MinTime"];
     $session_duration_str = gmdate("H:i:s", $session_duration/1000);
@@ -32,8 +28,6 @@ while($row = mysql_fetch_assoc($sessionqry)) {
     }
     else {}
 }
-
-mysql_free_result($sessionqry);
-mysql_close($con);
+$sessionqry->free_result();
 
 ?>

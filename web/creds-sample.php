@@ -28,4 +28,6 @@ $use_miles = false;
 $hide_empty_variables = true;
 $show_session_length = true;
 
+require_once("./get_db.php");
+
 ?>

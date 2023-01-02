@@ -7,8 +7,6 @@ $logged_in = false;
 
 
 //session.cookie_path = "/torque/";
-session_set_cookie_params(0,dirname($_SERVER['SCRIPT_NAME']));
-session_start();
 
 if (!isset($_SESSION['torque_logged_in'])) {
     $_SESSION['torque_logged_in'] = false;

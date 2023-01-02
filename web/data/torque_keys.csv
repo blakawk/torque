@@ -142,5 +142,17 @@ kff1277,0-30mph Time
 kff5201,Miles Per Gallon(Long Term Average)
 kff5202,Kilometers Per Litre(Long Term Average)
 kff5203,Litres Per 100 Kilometer(Long Term Average)
+keeba76,Battery Current (A)
+ke6f992,Battery DC Voltage (V)
+ke0484f,Battery Power (kWh)
+ke90ea2,Battery Temperature (C)
+kec9d8a,State of Charge BMS (%)
+ke50c2b,State of Charge Display (%)
+kea9e51,State of Health (%)
+k220100,Outdoor Temperature (C)
+ke38077,Cumulative Energy Charged (kWh)
+kec3d7f,Fast Charging
+kee4ea0,VMCU Real Vehicle Speed (km/h)
+k22b002,Display Odometer (km)
 session,Session ID
 time,Timestamp

@@ -1,20 +1,21 @@
 <?php
 
 ini_set('memory_limit', '-1');
+
+session_set_cookie_params(0,dirname($_SERVER['SCRIPT_NAME']));
+session_start();
+
 require_once ("./creds.php");
 require_once ("./auth_user.php");
-
 require_once ("./del_session.php");
 require_once ("./merge_sessions.php");
 require_once ("./get_sessions.php");
 require_once ("./get_columns.php");
 require_once ("./plot.php");
 
-$_SESSION['recent_session_id'] = strval(max($sids));
-
-// Connect to Database
-$con = mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error());
-mysql_select_db($db_name, $con) or die(mysql_error());
+if (count($sids) > 0) {
+    $_SESSION['recent_session_id'] = strval(max($sids));
+}
 
 if (isset($_POST["id"])) {
     $session_id = preg_replace('/\D/', '', $_POST['id']);
@@ -34,13 +35,13 @@ if (isset($session_id)) {
     }
 
     // Get GPS data for session
-    $sessionqry = mysql_query("SELECT kff1006, kff1005
+    $sessionqry = $db->query("SELECT kff1006, kff1005
                           FROM $db_table
                           WHERE session=$session_id
-                          ORDER BY time DESC", $con) or die(mysql_error());
+                          ORDER BY time DESC") or die($db->error);
 
     $geolocs = array();
-    while($geo = mysql_fetch_array($sessionqry)) {
+    while($geo = $sessionqry->fetch_array()) {
         if (($geo["0"] != 0) && ($geo["1"] != 0)) {
             $geolocs[] = array("lat" => $geo["0"], "lon" => $geo["1"]);
         }
@@ -56,8 +57,7 @@ if (isset($session_id)) {
     // Don't need to set zoom manually
     $setZoomManually = 0;
 
-    mysql_free_result($sessionqry);
-    mysql_close($con);
+    $sessionqry->free_result();
 }
 else {
     // Define these so we don't get an error on empty page loads. Instead it

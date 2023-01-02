@@ -2,8 +2,6 @@
 require_once("./creds.php");
 require_once("./get_sessions.php");
 
-session_start();
-
 if (isset($_POST["mergesession"])) {
     $mergesession = preg_replace('/\D/', '', $_POST['mergesession']);
 }
@@ -26,17 +24,9 @@ if (isset($mergesession) && !empty($mergesession) && isset($mergesessionwith) &&
         die("Invalid sessions to be merged. Aborted.");
     }
 
-    // Connect to Database
-    $con = mysql_connect($db_host, $db_user, $db_pass) or die(mysql_error());
-    mysql_select_db($db_name, $con) or die(mysql_error());
-
-    $mergeresult = mysql_query("UPDATE $db_table
+    $db->query("UPDATE $db_table
                           SET session=$mergesession
-                          WHERE session=$mergesessionwith;", $con) or die(mysql_error());
-
-    mysql_free_result($mergeresult);
-    mysql_close($con);
-
+                          WHERE session=$mergesessionwith;") or die($db->error);
     //Show merged session
     $session_id = $mergesession;
 }
